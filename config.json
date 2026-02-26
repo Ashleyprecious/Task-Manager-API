@@ -1,0 +1,37 @@
+
+{
+    "database": {
+        "host": "localhost",
+        "port": 3306,
+        "user": "Yelsha",
+        "password": "Ruby@2026!",
+        "database": "user_management",
+        "migrate": "FALSE"
+    },
+    "livedatabase": {
+        "host": "localhost",
+        "port": 3306,
+        "user": "systems_cars_live",
+        "password": "Cars@2024!",
+        "database": "systems_cars_live",
+        "migrate": "FALSE"
+    },
+    "port": 8177,
+    "uploadsMask": "u0veDcqIsErQVKXuXeM3",
+    "uploadsDir": "../carsUploads",
+    "clientURL": "https://cars.sandbox.co.ke/",
+    "authSecret": "SilenceIsGolden",
+    "emailFrom": "info@cars.sandbox.co.ke",
+    "smtpOptions": {
+        "host": "192.53.162.150",
+        "port": 25,
+        "secure": true,
+        "auth": {
+            "user": "info@cars.sandbox.co.ke",
+            "pass": "SaKvp6WD"
+        }
+    }
+}
+
+
+
