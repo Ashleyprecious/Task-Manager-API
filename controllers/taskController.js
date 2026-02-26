@@ -37,7 +37,7 @@ module.exports = {
             const { id } = req.params;
             const { title, description, status } = req.body;
             const modified_by = req.user.id; // Track the user who modified the task
-            
+
             
             const [updated] = await task.update({ title, description, status, modified_by }, { where: { id, is_deleted: false } });
             if (updated) {
@@ -51,6 +51,7 @@ module.exports = {
             res.status(500).json({ result_code: 0, message: 'Failed to update task' });
         }
     },
+    
 
     // Soft delete a task
     deleteTask: async (req, res) => {
