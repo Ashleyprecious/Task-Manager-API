@@ -23,7 +23,7 @@ module.exports = {
     // Get all tasks
     getAllTasks: async (req, res) => {
         try {
-            const tasks = await task.findAll({ where: { is_deleted: false } });
+            const tasks = await task.findAll({ where: { is_deleted: false,created_by:req.user.id } });
             res.status(200).json({ result_code: 1, message: 'Tasks retrieved successfully', tasks });
         } catch (error) {
             console.error('Error retrieving tasks:', error);

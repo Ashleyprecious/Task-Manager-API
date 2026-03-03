@@ -12,7 +12,7 @@ const TaskModel = (sequelize) => {
       allowNull: false,
       comment: 'The title of the task',
     },
-    detail: {
+    description: {
       type: DataTypes.TEXT,
       comment: 'Detailed description of the task',
     },

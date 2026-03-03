@@ -151,14 +151,14 @@ exports.forgotPassword = async (req, res, next) => {
     });
 
     // Construct reset link (replace with your frontend URL)
-    const resetLink = `https://your-frontend.com/reset-password?token=${resetToken}&email=${encodeURIComponent(email)}`;
+    const resetLink = `http://localhost:3000/reset-password?reset_token=${resetToken}&email=${encodeURIComponent(email)}`;
 
     // TODO: Send email here. For now, just log the link (mock email send)
     console.log(`Password reset link for ${email}: ${resetLink}`);
 
     return res.status(200).json({
       result_code: 1,
-      message: resetToken
+      message: resetLink
     });
   } catch (err) {
     console.error("Error in forgotPassword:", err);
@@ -168,8 +168,8 @@ exports.forgotPassword = async (req, res, next) => {
 
 exports.resetPassword = async (req, res, next) => {
   try {
-    const { email, token, newPassword } = req.body;
-    if (!email || !token || !newPassword) {
+    const { email, token, password } = req.body;
+    if (!email || !token || !password) {
       return res.status(400).json({ result_code: 0, message: "Email, token, and new password are required." });
     }
 
@@ -187,7 +187,7 @@ exports.resetPassword = async (req, res, next) => {
     }
 
     // Hash new password
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     // Update password and clear reset token/expiry
     await foundUser.update({
@@ -205,3 +205,56 @@ exports.resetPassword = async (req, res, next) => {
     return next(err);
   }
 };
+
+// update user profile, change password, delete account, etc. can be added here in the future as needed.
+
+exports.updateUserProfile = async (req, res, next) => {
+  try {
+    const { id } = req.body ? req.body : req.params; // Support both body and params for user ID
+    const { first_name, last_name, phone_number } = req.body;
+    const foundUser = await user.findOne({ where: { user_id: id, is_deleted: false } });
+    if (!foundUser) {
+      return res.status(404).json({ result_code: 0, message: "User not found." });
+    }
+    await foundUser.update({ first_name, last_name, phone_number });
+    return res.status(200).json({ result_code: 1, message: "User profile updated successfully.", user: foundUser });
+  } catch (err) {
+    console.error("Error updating user profile:", err);
+    return next(err);
+  }
+}
+/// change password, delete account, etc. can be added here in the future as needed.
+exports.changePassword = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const { current_password, new_password } = req.body;
+        const foundUser = await user.findOne({ where: { user_id: id, is_deleted: false } });
+        if (!foundUser) {
+            return res.status(404).json({ result_code: 0, message: "User not found." });
+        }
+        const isMatch = await bcrypt.compare(current_password, foundUser.password);
+        if (!isMatch) {
+            return res.status(401).json({ result_code: 0, message: "Current password is incorrect." });
+        } 
+        const hashedNewPassword = await bcrypt.hash(new_password, 10);
+        await foundUser.update({ password: hashedNewPassword });
+        return res.status(200).json({ result_code: 1, message: "Password changed successfully." });
+    } catch (err) {      
+        console.error("Error changing password:", err);
+        return next(err); 
+    }
+  }
+  // delete account, etc. can be added here in the future as needed.
+exports.deleteAccount = async (req, res, next) => {
+    try {        const { id } = req.params;
+        const foundUser = await user.findOne({ where: { user_id: id, is_deleted: false } });
+        if (!foundUser) {
+            return res.status(404).json({ result_code: 0, message: "User not found." });
+        }
+        await foundUser.update({ is_deleted: true });
+        return res.status(200).json({ result_code: 1, message: "Account deleted successfully." });
+    } catch (err) {
+        console.error("Error deleting account:", err);
+        return next(err);
+    }
+}
