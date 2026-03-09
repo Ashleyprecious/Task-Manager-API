@@ -16,10 +16,10 @@ app.use(express.urlencoded({ extended: true }));
 const dbRoute = require('./routes/dbRoute');
 const userRoutes = require('./routes/userRoutes');
 const taskRoutes = require('./routes/taskRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 
 
-
-app.use([dbRoute, userRoutes, taskRoutes]);
+app.use([dbRoute, userRoutes, taskRoutes, adminRoutes]);
 
 // 404 error handling
 app.post('*', function (req, res) { // Changed to POST for consistency

@@ -210,13 +210,13 @@ exports.resetPassword = async (req, res, next) => {
 
 exports.updateUserProfile = async (req, res, next) => {
   try {
-    const { id } = req.body ? req.body : req.params; // Support both body and params for user ID
-    const { first_name, last_name, phone_number } = req.body;
+    const { id } = req.user ? req.user : req.params; // Support both body and params for user ID
+    const { first_name, last_name, phone_number,user_type } = req.body;
     const foundUser = await user.findOne({ where: { user_id: id, is_deleted: false } });
     if (!foundUser) {
       return res.status(404).json({ result_code: 0, message: "User not found." });
     }
-    await foundUser.update({ first_name, last_name, phone_number });
+    await foundUser.update({ first_name, last_name, phone_number,user_type });
     return res.status(200).json({ result_code: 1, message: "User profile updated successfully.", user: foundUser });
   } catch (err) {
     console.error("Error updating user profile:", err);
@@ -226,7 +226,7 @@ exports.updateUserProfile = async (req, res, next) => {
 /// change password, delete account, etc. can be added here in the future as needed.
 exports.changePassword = async (req, res, next) => {
     try {
-        const { id } = req.params;
+        const { id } = req.user ? req.user : req.params; // Support both body and params for user ID
         const { current_password, new_password } = req.body;
         const foundUser = await user.findOne({ where: { user_id: id, is_deleted: false } });
         if (!foundUser) {
@@ -246,7 +246,7 @@ exports.changePassword = async (req, res, next) => {
   }
   // delete account, etc. can be added here in the future as needed.
 exports.deleteAccount = async (req, res, next) => {
-    try {        const { id } = req.params;
+    try {        const { id } = req.user ? req.user : req.params; // Support both body and params for user ID
         const foundUser = await user.findOne({ where: { user_id: id, is_deleted: false } });
         if (!foundUser) {
             return res.status(404).json({ result_code: 0, message: "User not found." });
