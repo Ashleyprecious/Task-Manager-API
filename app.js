@@ -4,6 +4,8 @@ const cors = require('cors');
 const helmet = require('helmet');
 const http = require('http');
 const configs = require('./config.json');
+const path = require('path');
+
 
 const app = express();
 
@@ -20,6 +22,8 @@ const adminRoutes = require('./routes/adminRoutes');
 
 
 app.use([dbRoute, userRoutes, taskRoutes, adminRoutes]);
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 
 // 404 error handling
 app.post('*', function (req, res) { // Changed to POST for consistency

@@ -2,7 +2,8 @@
 const { Router } = require('express');
 const router = Router();
 const userController = require('../controllers/userController');
-const { authenticateToken } = require('../middlewares/authMiddleware');
+const { authenticateToken,upload } = require('../middlewares/authMiddleware');
+
 
 
 router.post('/api/users/register', userController.registerUser);
@@ -12,6 +13,7 @@ router.post('/api/users/reset-password', userController.resetPassword);
 router.post('/api/users/change-password', authenticateToken, userController.changePassword);
 router.post('/api/users/delete', authenticateToken, userController.deleteAccount);
 router.post('/api/users/update', authenticateToken, userController.updateUserProfile);
-
+router.post('/api/users/upload-photo', authenticateToken, upload.single('profile_photo'),userController.uploadProfilePhoto);
+router.delete('/api/users/remove-photo', authenticateToken, userController.removeProfilePhoto);
 
 module.exports = router;

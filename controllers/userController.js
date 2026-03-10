@@ -2,6 +2,8 @@ const { user } = require("../db");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
+const fs = require('fs');
+const path = require('path');
 
 // User Registration (Sign up)
 exports.registerUser = async (req, res, next) => {
@@ -258,3 +260,80 @@ exports.deleteAccount = async (req, res, next) => {
         return next(err);
     }
 }
+
+
+
+// Upload profile photo
+exports.uploadProfilePhoto = async (req, res, next) => {
+  try {
+    const userId = req.user.id; // From auth middleware
+    const foundUser = await user.findByPk(userId);
+    
+    if (!foundUser || foundUser.is_deleted) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Check if file was uploaded
+    if (!req.file) {
+      return res.status(400).json({ error: 'No file uploaded' });
+    }
+
+     const uploadDir = path.join(__dirname, '../uploads/profiles');
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+
+    // Delete old profile photo if it exists
+    if (foundUser.profile_photo) {
+      const oldPhotoPath = path.join(__dirname, '..', foundUser.profile_photo);
+      if (fs.existsSync(oldPhotoPath)) {
+        fs.unlinkSync(oldPhotoPath);
+      }
+    }
+
+    // Save new photo path in database (store relative path)
+    const photoUrl = `/uploads/profiles/${req.file.path}`;
+    await foundUser.update({ profile_photo: photoUrl });
+
+    return res.status(200).json({
+      result_code: 1,
+      message: 'Profile photo uploaded successfully',
+      profile_photo: photoUrl
+    });
+  } catch (err) {
+    console.error('Error uploading profile photo:', err);
+    return next(err);
+  }
+};
+
+// Remove profile photo
+exports.removeProfilePhoto = async (req, res, next) => {
+  try {
+    const userId = req.user.user_id;
+    const user = await user.findByPk(userId);
+    
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Delete the file if it exists
+    if (user.profile_photo) {
+      const photoPath = path.join(__dirname, '..', user.profile_photo);
+      if (fs.existsSync(photoPath)) {
+        fs.unlinkSync(photoPath);
+      }
+    }
+
+    // Remove from database
+    user.profile_photo = null;
+    await user.save();
+
+    return res.status(200).json({
+      result_code: 1,
+      message: 'Profile photo removed successfully'
+    });
+  } catch (err) {
+    console.error('Error removing profile photo:', err);
+    return next(err);
+  }
+};
