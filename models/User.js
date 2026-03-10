@@ -53,6 +53,12 @@ const UserModel = (sequelize) => {
       defaultValue: null,
     },
 
+    profile_photo: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      defaultValue: null,
+    },
+
   });
 };
 
