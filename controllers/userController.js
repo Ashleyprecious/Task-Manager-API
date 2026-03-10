@@ -292,7 +292,12 @@ exports.uploadProfilePhoto = async (req, res, next) => {
     }
 
     // Save new photo path in database (store relative path)
-    const photoUrl = `/uploads/profiles/${req.file.path}`;
+    const photoUrl = `/uploads/profiles/${req.file.filename}`;
+    // add base path to photoUrl if you want to return full URL
+
+    
+    foundUser.profile_photo = photoUrl;
+    await foundUser.save();
     await foundUser.update({ profile_photo: photoUrl });
 
     return res.status(200).json({
